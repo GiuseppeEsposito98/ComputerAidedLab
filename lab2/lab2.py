@@ -45,7 +45,7 @@ while True:
             board.update_matrix(player, (player.coordinates[0] - move[0], player.coordinates[1] - move[1]))
         except IndexError: 
             move = random.choice([(1,0), (1,1), (0,1), (-1,0), (-1, -1), (0,-1), (-1,1)])
-        
+        player.compute_local_winner()
     sleep(1)
     print(board.matrix)
 
