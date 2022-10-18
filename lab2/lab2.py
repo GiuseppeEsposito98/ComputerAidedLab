@@ -2,6 +2,9 @@ from Player import Player
 import numpy as np
 import random
 from board import Board
+from time import time
+from time import sleep
+
 # SETTING CONSTANT VALUES
 id = 0
 ROWS = 8
@@ -10,6 +13,7 @@ fixed_speed = 3
 NUMBER_OF_PLAYERS = 4
 RANDOM_SEED = 31 
 THR = 1
+SIMULATION_TIME = 100
 #np.random.seed(RANDOM_SEED)
 distance_matrix = np.zeros((NUMBER_OF_PLAYERS, NUMBER_OF_PLAYERS), dtype=object)
 
@@ -30,9 +34,20 @@ for player in sorted(board.list_of_players, key=lambda a: a.id_):
         distance_matrix[player.get_id(), other.get_id()] = player.compute_distance(other)
 
 
-print(distance_matrix)
-
-
+#print(distance_matrix)
+ts = time()
+while True:
+    ts = time()
+    for player in board.list_of_players:
+        try: 
+            move = random.choice([(1,0), (1,1), (0,1), (-1,0), (-1, -1), (0,-1), (-1,1)])
+            player.coordinates = (player.coordinates[0] + move[0], player.coordinates[1] + move[1]) 
+            board.update_matrix(player, (player.coordinates[0] - move[0], player.coordinates[1] - move[1]))
+        except IndexError: 
+            move = random.choice([(1,0), (1,1), (0,1), (-1,0), (-1, -1), (0,-1), (-1,1)])
+        
+    sleep(1)
+    print(board.matrix)
 
 
 # the fact that a player at random is killed is an assumption
