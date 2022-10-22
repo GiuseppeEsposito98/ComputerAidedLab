@@ -1,21 +1,33 @@
 import numpy as np
-from Player import Player
+import random
+from Action import Action
+random.seed(302179)
 class Board():
     def __init__(self, 
     board_size: tuple) -> None:
         self.board_size = board_size
-        self.matrix = np.zeros(self.board_size, dtype=object)
+        self.matrix = np.zeros(board_size)
         self.list_of_players = list()
+        self.killed = []
+
     
-    def update_matrix(self, 
-        player: Player,
-        previous_coor: tuple):
-        self.matrix[previous_coor[0], previous_coor[1]] = 0
-        self.matrix[player.coordinates[0], player.coordinates[1]] = player
+    def update_matrix(self):
+        for player in self.list_of_players:
+            movement = Action.move(player.coordinates, self.board_size[0])
+            self.matrix[player.coordinates[0], player.coordinates[1]] = 0
+            self.matrix[movement[0], movement[1]] = player.id_
+            player.update_coordinates(movement)
         
     def save_players(self, player):
         self.list_of_players.append(player)
-        self.matrix[player.coordinates[0], player.coordinates[1]] = player
+        self.matrix[player.coordinates[0], player.coordinates[1]] = player.id_
+
+    def sort_list(self):
+        self.list_of_players.sort(key=lambda x: x.id_)
+
+    def remove_player(self, player):
+        self.killed.append(player)
+        self.list_of_players.remove(player)
 
     def __str__(self) -> str:
         return str(self.matrix)

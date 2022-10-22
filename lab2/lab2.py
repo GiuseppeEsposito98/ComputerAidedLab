@@ -2,59 +2,53 @@ from Player import Player
 import numpy as np
 import random
 from board import Board
-from time import time
-from time import sleep
+from Action import Action
+from time import time, sleep
+import csv
 
 # SETTING CONSTANT VALUES
-id = 0
-ROWS = 8
-COLS = 8
-fixed_speed = 3
-NUMBER_OF_PLAYERS = 4
-RANDOM_SEED = 31 
-THR = 1
-SIMULATION_TIME = 100
-#np.random.seed(RANDOM_SEED)
-distance_matrix = np.zeros((NUMBER_OF_PLAYERS, NUMBER_OF_PLAYERS), dtype=object)
-
-# INITIALIZATIONS
-board = Board((ROWS, COLS))
-for n in range(NUMBER_OF_PLAYERS):
-    coordinates = (np.random.randint(0, ROWS), np.random.randint(0, ROWS))
-    player = Player(coordinates, fixed_speed, id)
-    board.save_players(player)
-    id += 1
-
-# these nested for are to control if the just spawned players are already under the threshold
-for player in sorted(board.list_of_players, key=lambda a: a.id_):
-    for other in sorted(board.list_of_players, key=lambda a: a.id_):
-        if(player.id_ != other.id_):
-            while player.check_distance(other, THR):
-                player.coordinates = (np.random.randint(0, ROWS), np.random.randint(0, COLS))
-        distance_matrix[player.get_id(), other.get_id()] = player.compute_distance(other)
+NUM_ROW = 200
+players = 20
+def simulation(ROWS, fixed_speed, num_of_players):
+    id = 0
+    RANDOM_SEED = 9
+    THR = 1
+    random.seed(RANDOM_SEED)
 
 
-#print(distance_matrix)
-ts = time()
-while True:
-    ts = time()
-    for player in board.list_of_players:
-        try: 
-            move = random.choice([(1,0), (1,1), (0,1), (-1,0), (-1, -1), (0,-1), (-1,1)])
-            player.coordinates = (player.coordinates[0] + move[0], player.coordinates[1] + move[1]) 
-            board.update_matrix(player, (player.coordinates[0] - move[0], player.coordinates[1] - move[1]))
-        except IndexError: 
-            move = random.choice([(1,0), (1,1), (0,1), (-1,0), (-1, -1), (0,-1), (-1,1)])
-        player.compute_local_winner()
-    sleep(1)
-    print(board.matrix)
+    # INITIALIZATIONS
+    board = Board((ROWS, ROWS))
+    for n in range(1, num_of_players +1):
+        coordinates = (random.randint(0, ROWS-1), random.randint(0, ROWS-1))
+        player = Player(coordinates, fixed_speed,n)
+        board.save_players(player)
+
+    time_ = 0
+
+    while True:
+        for player in board.list_of_players:
+            for other in board.list_of_players:
+                if (player.check_distance(other, THR) and player.id_ != other.id_):
+                    Action.compute_local_winner(board, player, other)
+
+        board.update_matrix()
+        #print(board.matrix)
+        if len(board.list_of_players)== 1:
+            break
+        time_ = time_ +1
+   # print(len(board.killed))
+    return time_, board.list_of_players[0], board.killed
+
+time_, winner, killed_list = simulation(NUM_ROW, 1,players)
 
 
+print("kill_winner:", winner.kill_counter)
+print("time: ", time_)
 # the fact that a player at random is killed is an assumption
 # the game session is manages by a single virtual machine (assumption 2)
 # people moves at random (assumption 3)
 # initial conditions: where does the person starts?
-#  it's up to us
+# it's up to us
 # of course create a class player that takes track of all the killed components
 # in case of pair what happens?
 # what does mean that they meet eachother ?
