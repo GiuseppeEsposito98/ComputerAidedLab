@@ -49,9 +49,11 @@ begin
     - update the position of the players.
 end
 
+## RUN INSTRUCTION
+To run the script it is required to have all the files in the same folder and to have installed the numpy, pandas and matplotlib libraries and then run the file lab2.py. Then to try all the input parameter you just need to change the input parameter (which are defined at the begining of the file lab2.py) to the function "simulation" where the first is the numeber of rows, the second is the speed that is equal for each player and the last one is the number of players.
+
 ## GRAPHS
 The graphs can be visualized by just running the file "show_results.py" which will plot the results that are already collected in the csv file of the folder. 
-## write some results. 
 
 ## FUTURE IMPROVEMENT
 Another interesting case study could be the use of some power ups. One of them could increase the probability of a player to win a fight for a given amount of time he meets any other player, in this way the metrics of average number of kill per player and kill of the winner could change accordingly. 

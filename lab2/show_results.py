@@ -98,5 +98,5 @@ for i in board_size:
 plt.ylabel("Avg rate kills")
 plt.xlabel("#Players")
 plt.legend(labels = board_size, title = "Board edge")
-plt.savefig("graphs/players_vs_avg_kill_rate.png")
+plt.savefig("graphs/splayers_vs_avg_kill_rate.png")
 plt.close(fig)

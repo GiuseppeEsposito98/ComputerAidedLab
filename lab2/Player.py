@@ -1,10 +1,10 @@
 
 import random
-import numpy as np
 from board import Board
 BOARD_SIZE = 8
 random.seed(302179)
 class Player:
+    '''Class of players'''
     def __init__(self, 
     initial_coordinates: tuple,
     speed: float, 
@@ -19,6 +19,7 @@ class Player:
 
     
     def check_distance(self, other, thr):
+        '''Check wether the distance is below the threshold'''
         dist = (abs(self.coordinates[0] - other.coordinates[0]), abs(self.coordinates[1] - other.coordinates[1])) 
         if (dist[0]<=thr and dist[1]<=thr):
             return True

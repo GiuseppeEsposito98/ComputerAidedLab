@@ -1,10 +1,10 @@
 import random
-from copy import deepcopy
 random.seed(302179)
 class Action: 
     
 
     def move(coord:tuple, board_size):
+        '''Generate a random and ADMISSIBLE movement'''
         possible_move = [(0,0), (0,1), (0,-1),
                          (1,0), (1, 1), (1,-1), 
                          (-1,0), (-1,1), (-1,-1)]
@@ -18,6 +18,7 @@ class Action:
         return move_[0] + coord[0], move_[1] + coord[1]
 
     def compute_local_winner(board, player, other):
+            '''Manage the fight between two players'''
             winner = random.choice([0,1])
             if winner == 1:
                 board.remove_player(other)
