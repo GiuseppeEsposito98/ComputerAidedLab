@@ -10,12 +10,13 @@ Before going into the deatail of the development it is noteworthy to specify the
     3. Two player see eachother if they are below a threshold that is set to 1
     4. The initial position of the players are randomly computed
     5. There is no SIMULATION TIME beause one of the metrics i had to study was the time to win and since all my simulation converged even though some of them took a lot of time i decided to let them run
-    6. The speed is set equal for all the players
+    6. The speed is set equal for all the players 
 
 ## SIMULATION PARAMTER
 In order to understand the behaviour of some metrics we tried different values of the following simulation parameter: 
     - Board edge (ROWS) = [10,50,100,200,500,700,1000,1500] 
     - Number of players (N) = [2,10,50,100,500]
+    - Random seed = 9 to make the simulations repetable 
 
 To make the simulations more balanced we tried the combinations of values that you can see in the file "results.csv"
 

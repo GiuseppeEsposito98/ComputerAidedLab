@@ -14,7 +14,7 @@ class Board():
     def update_matrix(self):
         '''update the values in the matrix with a random movement and also the coordinated of the player'''
         for player in self.list_of_players:
-            movement = Action.move(player.coordinates, self.board_size[0])
+            movement = Action.move(player, self.board_size[0])
             self.matrix[player.coordinates[0], player.coordinates[1]] = 0
             self.matrix[movement[0], movement[1]] = player.id_
             player.update_coordinates(movement)

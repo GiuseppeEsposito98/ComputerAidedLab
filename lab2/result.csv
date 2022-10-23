@@ -1,4 +1,4 @@
-Board edge;#Players;Time to win;#Kills for the winner;Avg rate kills;Mobility speed (cell per iteration)
+Edge_size;#Players;Time_to_win;Winner_kill;Avg_kill_per_player;Players_speed(cell per iteration)
 10;2;102;1;0.5;1
 50;2;5741;1;0.5;1
 100;2;9447;1;0.5;1

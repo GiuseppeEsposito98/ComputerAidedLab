@@ -5,8 +5,8 @@ from Action import Action
 from time import time, sleep
 
 # SETTING CONSTANT VALUES
-NUM_ROW = 200
-players = 20
+NUM_ROW = 100
+players = 10
 def simulation(ROWS, fixed_speed, num_of_players):
     id = 0
     RANDOM_SEED = 9
@@ -36,6 +36,7 @@ def simulation(ROWS, fixed_speed, num_of_players):
             break
         time_ = time_ +1
     return time_, board.list_of_players[0], board.killed
+    # I return also the only existring element of the list_of_players that at the end will contain only the winner
 
 time_, winner, killed_list = simulation(NUM_ROW, 1,players)
 
