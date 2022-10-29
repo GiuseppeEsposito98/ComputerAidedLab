@@ -11,6 +11,7 @@ Before going into the deatail of the development it is noteworthy to specify the
     4. The initial position of the players are randomly computed
     5. There is no SIMULATION TIME beause one of the metrics i had to study was the time to win and since all my simulation converged even though some of them took a lot of time i decided to let them run
     6. The speed is set equal for all the players 
+    7. We assume that all the players have at least one kill so that we can compute the average kills per player as (#initial_players-1)/#initial_players
 
 ## SIMULATION PARAMTER
 In order to understand the behaviour of some metrics we tried different values of the following simulation parameter: 
@@ -29,8 +30,8 @@ With these simulations we wanted to compute the folloqing metrics:
 ## DATA STRUCTURES
 I created 3 custom classes which are:
     - Player: which contains the coordinates of each player, the kill counter, an incremental id which is unique.
-    - Board: which contains the matrix where the player are placed, the list of players and the killed players
-    - Action: which is a class without attributes that i need to computw the new coordinates at each iteration and the winner of each fight
+    - Board: which contains the matrix where the player are placed, the list of players and the killed players.
+    - Action: which is a class without attributes that i need to computw the new coordinates at each iteration and the winner of each fight.
 
 ## MAIN ALGORITHM 
 begin
@@ -54,7 +55,7 @@ end
 To run the script it is required to have all the files in the same folder and to have installed the numpy, pandas and matplotlib libraries and then run the file lab2.py. Then to try all the input parameter you just need to change the input parameter (which are defined at the begining of the file lab2.py) to the function "simulation" where the first is the numeber of rows, the second is the speed that is equal for each player and the last one is the number of players.
 
 ## GRAPHS
-The graphs can be visualized by just running the file "show_results.py" which will plot the results that are already collected in the csv file of the folder. 
+The graphs can be visualized by just running the file "show_results.py" which will plot the results that are already collected in the csv file of the folder and will save the png file in the folder called "graphs". 
 
 ## FUTURE IMPROVEMENT
 Another interesting case study could be the use of some power ups. One of them could increase the probability of a player to win a fight for a given amount of time he meets any other player, in this way the metrics of average number of kill per player and kill of the winner could change accordingly. 
