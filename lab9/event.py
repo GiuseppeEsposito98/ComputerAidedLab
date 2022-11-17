@@ -1,4 +1,6 @@
 from client import *
+import numpy as np
+
 class Event():
     def __init__(self, time, typ) -> None:
         self.time = time
@@ -12,3 +14,7 @@ class Event():
 
     def __lt__(self, other):
         return self.time < other.time
+
+# Arrival function
+
+
