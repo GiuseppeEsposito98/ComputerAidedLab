@@ -10,38 +10,35 @@ def main():
     filename = "US_births_2000-2014_SSA.csv"
     from_data_to_probs(filename)
     # input parameters
-    M = [10,15,20,25,30,35,40,45,50,55,60,70,80,90]
+    M = [0, 10,20,30,40,50,60,70,80,90,100]
     ITERATIONS = 200
     N = [100, 300, 500, 1000]
-    # a possible extension could be to evaluate, for each value of M the avg number of first_collisions
     # probabilities of the real distribution for each date
     probabilities = pd.read_csv(f"births_distribution/probabilities.csv")["probabilities"].tolist()
 
     # Average minimum number such that a conflict occurs - uniform distribution
     first_collisions_unif = list()
     for _ in range(ITERATIONS):
-        first_collisions_unif.append(expected_value(366,probabilities, distribution="uniform"))
+        first_collisions_unif.append(expected_value(n = 366, distribution="uniform"))
 
     theoretical_avg = 1.25*sqrt(366)
-    #plot_avgs(first_collisions_unif, theoretical_avg, "uniform")
-    ci = confidence_interval_avg(first_collisions_unif)
-    print(f"UNIFORM DISTRIBUTION - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
+    ci = confidence_interval_avg(first_collisions_unif, alpha = 0.015)
+    print(f"UNIFORM DISTRIBUTION (confidence interval) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
 
     # Average minimum number such that a conflict occurs - real distribution
     first_collisions_real = list()
     for _ in range(ITERATIONS):
-        first_collisions_real.append(expected_value(366, probabilities, distribution="real"))
-    #plot_avgs(first_collisions_real, theoretical_avg, "real")
+        first_collisions_real.append(expected_value(n = 366, probabilities = probabilities, distribution="real"))
 
-    ci = confidence_interval_avg(first_collisions_real)
-    print(f"UNIFORM DISTRIBUTION - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
+    ci = confidence_interval_avg(first_collisions_real, alpha = 0.015)
+    print(f"UNIFORM DISTRIBUTION (confidence interval) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
 
     # M VS Probability of conflict - uniform distribution
     tmp_unif = list()
     theor_vals = list()
     for m in M:
         theor_vals.append(1-exp(-(m**2)/(2*365)))
-        p = probability(366, probabilities, m, ITERATIONS, distribution="uniform")
+        p = probability(n = 366, m = m, iterations = ITERATIONS, distribution="uniform")
         tmp_unif.append(p)
 
 
@@ -50,14 +47,14 @@ def main():
     theor_vals = list()
     for m in M:
         theor_vals.append(1-exp(-(m**2)/(2*365)))
-        p = probability(366, probabilities, m, ITERATIONS, distribution="real")
+        p = probability(n = 366, m = m, iterations = ITERATIONS, probabilities=probabilities, distribution="real")
         tmp_real.append(p)
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (13,7))
     fig.suptitle("Probability to have at least one conflict")
-    plot_prob(ax1, tmp_unif, M, theor_vals, "uniform", ITERATIONS)
-    plot_prob(ax2, tmp_real, M, theor_vals, "real", ITERATIONS)
-    fig.savefig("graphs/classes_size VS probabiity of conflict")
+    plot_prob(ax1, tmp_unif, M, theor_vals, "uniform", ITERATIONS, alpha = 0.05)
+    plot_prob(ax2, tmp_real, M, theor_vals, "real", ITERATIONS, alpha = 0.05)
+    fig.savefig("graphs/Class size VS Probabiity of conflict")
     fig.show()
 
     # ============EXTENSION============
@@ -69,7 +66,7 @@ def main():
     for n in N:
         first_collisions_unif_var = list()
         for _ in range(ITERATIONS):
-            first_collisions_unif_var.append(expected_value(n,probabilities, distribution="uniform"))
+            first_collisions_unif_var.append(expected_value(n = n, distribution="uniform"))
         m_lists.append(first_collisions_unif_var)
         theoretical_avg_var = 1.25*sqrt(n)
         theor_avg_list.append(theoretical_avg_var)
@@ -84,15 +81,15 @@ def main():
         theor_vals_var = list()
         for m in M:
             theor_vals_var.append(1-exp(-(m**2)/(2*n)))
-            p = probability(n, probabilities, m, ITERATIONS, distribution="uniform")
+            p = probability(n = n, m = m, iterations = ITERATIONS, distribution="uniform")
             tmp_unif_var.append(p)
         all_p.append(tmp_unif_var)
         all_theor.append(theor_vals_var)
     
     fig, ax = plt.subplots(1, 1, figsize = (13,7))
     fig.suptitle("Probability to have at least one conflict")
-    plot_prob_var(ax, all_p, M, all_theor, ITERATIONS)
-    fig.savefig("graphs/PROBABILITY VARIATION")
+    plot_prob_var(ax, all_p, M, all_theor, ITERATIONS, N)
+    fig.savefig("graphs/Probability extension")
     fig.show()
 
 if __name__ == '__main__':
