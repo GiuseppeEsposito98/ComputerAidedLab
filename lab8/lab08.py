@@ -13,42 +13,58 @@ def main():
     M = [0, 10,20,30,40,50,60,70,80,90,100]
     ITERATIONS = 200
     N = [100, 300, 500, 1000]
+    print(f"=====MAIN EXPERIMENT=====")
+    print("Input parameter:")
+    print(f"M (List of class sizes): {M}")
+    print(f"Iterations: {ITERATIONS}")
     # probabilities of the real distribution for each date
     probabilities = pd.read_csv(f"births_distribution/probabilities.csv")["probabilities"].tolist()
 
     # Average minimum number such that a conflict occurs - uniform distribution
     first_collisions_unif = list()
+    exp1_time_start = time()
     for _ in range(ITERATIONS):
         first_collisions_unif.append(expected_value(n = 366, distribution="uniform"))
 
     theoretical_avg = 1.25*sqrt(366)
     ci = confidence_interval_avg(first_collisions_unif, alpha = 0.015)
-    print(f"UNIFORM DISTRIBUTION (confidence interval) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
-
+    exp1_time_end = time()
+    print(f"UNIFORM DISTRIBUTION (confidence interval 97%) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
+    print(f"Simulation time for the first experimen with uniform distributiont: {exp1_time_end - exp1_time_start}")
+    print()
     # Average minimum number such that a conflict occurs - real distribution
     first_collisions_real = list()
+    exp2_time_start = time()
     for _ in range(ITERATIONS):
         first_collisions_real.append(expected_value(n = 366, probabilities = probabilities, distribution="real"))
 
     ci = confidence_interval_avg(first_collisions_real, alpha = 0.015)
-    print(f"UNIFORM DISTRIBUTION (confidence interval) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
-
+    exp2_time_end = time()
+    print(f"REAL DISTRIBUTION (confidence interval 97%) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
+    print(f"Simulation time for the first experiment with real distribution: {exp2_time_end - exp2_time_start}")
+    print()
     # M VS Probability of conflict - uniform distribution
     tmp_unif = list()
     theor_vals = list()
+    exp3_time_start = time()
     for m in M:
         theor_vals.append(1-exp(-(m**2)/(2*365)))
         p = probability(n = 366, m = m, iterations = ITERATIONS, distribution="uniform")
         tmp_unif.append(p)
-
-
+    exp3_time_end = time()
+    print(f"Simulation time for the second experiment with uniform distribution: {exp3_time_end - exp3_time_start}")
+    print()
     # M VS Probability of conflict - real distribution
     tmp_real = list()
     theor_vals = list()
+    exp4_time_start = time()
     for m in M:
         theor_vals.append(1-exp(-(m**2)/(2*365)))
         p = probability(n = 366, m = m, iterations = ITERATIONS, probabilities=probabilities, distribution="real")
         tmp_real.append(p)
+    exp4_time_end = time()
+    print(f"Simulation time for the second experiment with real distribution: {exp4_time_end - exp4_time_start}")
+
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (13,7))
     fig.suptitle("Probability to have at least one conflict")
@@ -61,8 +77,15 @@ def main():
     # for what concernes the average we will consider only the uniform distribution case because we so not have the 
     # real distribution for n != 365
     # Average minimum number such that a conflict occurs - uniform distribution
+    print()
+    print(f"=====EXTENSION=====")
+    print("Input parameter:")
+    print(f"M (List of class sizes): {M}")
+    print(f"Iterations: {ITERATIONS}")
+    print(f"N (list of class possible extractions): {N}")
     m_lists = list()
     theor_avg_list = list()
+    exp5_time_start = time()
     for n in N:
         first_collisions_unif_var = list()
         for _ in range(ITERATIONS):
@@ -85,7 +108,10 @@ def main():
             tmp_unif_var.append(p)
         all_p.append(tmp_unif_var)
         all_theor.append(theor_vals_var)
-    
+    exp5_time_end = time()
+    print(f"Simulation time for the general case of the birthday paradox: {exp5_time_end - exp5_time_start}")
+    print()
+    print(f"Time of the whole simulation: {exp5_time_end + exp4_time_end + exp3_time_end + exp2_time_end + exp1_time_end - exp5_time_start - exp4_time_start - exp3_time_start- exp2_time_start - exp1_time_start}")
     fig, ax = plt.subplots(1, 1, figsize = (13,7))
     fig.suptitle("Probability to have at least one conflict")
     plot_prob_var(ax, all_p, M, all_theor, ITERATIONS, N)
@@ -93,6 +119,7 @@ def main():
     fig.show()
 
 if __name__ == '__main__':
+
     main()
 
 # ASSUMPTIONS

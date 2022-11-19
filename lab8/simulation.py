@@ -94,7 +94,7 @@ def plot_prob(ax,
     ax.plot(M,probs, label= 'experimental')
     lower_bound, upper_bound = confidence_interval_prob(probs, iterations, alpha=alpha)
     ax.plot(M, theor_values, label = "theoretical curve")
-    ax.fill_between(M,lower_bound,upper_bound,alpha=.3, label = "confidence interval")
+    ax.fill_between(M,lower_bound,upper_bound,alpha=.3, label = "confidence interval 95%")
     ax.set_xlabel("M (number of students per class)")
     ax.set_ylabel("Probabilities")
     ax.set_xticks(np.arange(min(M), max(M)+1, 10.0))
@@ -167,8 +167,18 @@ def from_data_to_probs(filename):
     # frequentist probability
     probabilities = total_per_date["births"].apply(lambda x: x/total)
     #print(probabilities)
+    
+    fig, ax = plt.subplots(1, 1, figsize = (13,7))
+    fig.suptitle("Probability istogram")
     plt.bar(range(0,366), probabilities.values)
-    plt.show()
+    ax.set_xlabel("Day in a year")
+    ax.set_ylabel("Probabilities")
+    ax.set_xticks(np.arange(0, 366, 20.0))
+    #ax.set_title(f'Number of possible extractions VS Conflict probabilities')
+    ax.legend()
+    ax.grid()
+    fig.savefig("graphs/Probability distribution")
+    fig.show()
 
 
     with open("births_distribution/probabilities.csv", "w") as csf:
