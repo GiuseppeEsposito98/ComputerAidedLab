@@ -11,6 +11,9 @@ def main():
     from_data_to_probs(filename)
     # input parameters
     M = [0, 10,20,30,40,50,60,70,80,90,100]
+    # this is an algorithm which has a very low computational cost, so in order to make the experiment repeatible 
+    # we can decide to run for a specific number of iterations and be sure that the runs will not share the same results
+    # since the pseudo-random number generator of python uses the current last generation as seed of the new generation.
     ITERATIONS = 200
     N = [100, 300, 500, 1000]
     print(f"=====MAIN EXPERIMENT=====")
@@ -25,8 +28,11 @@ def main():
     exp1_time_start = time()
     for _ in range(ITERATIONS):
         first_collisions_unif.append(expected_value(n = 366, distribution="uniform"))
-
+    
+    #theoretical value of the mean of first collisions
     theoretical_avg = 1.25*sqrt(366)
+
+    # confidence interval of the first collisions collected for each iteration
     ci = confidence_interval_avg(first_collisions_unif, alpha = 0.015)
     exp1_time_end = time()
     print(f"UNIFORM DISTRIBUTION (confidence interval 97%) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
@@ -38,6 +44,7 @@ def main():
     for _ in range(ITERATIONS):
         first_collisions_real.append(expected_value(n = 366, probabilities = probabilities, distribution="real"))
 
+    # confidence interval of the first collisions collected for each iteration
     ci = confidence_interval_avg(first_collisions_real, alpha = 0.015)
     exp2_time_end = time()
     print(f"REAL DISTRIBUTION (confidence interval 97%) - lower bound : {ci[0]} theoretical value: {theoretical_avg}, upper bound: {ci[1]}")
@@ -60,6 +67,7 @@ def main():
     exp4_time_start = time()
     for m in M:
         theor_vals.append(1-exp(-(m**2)/(2*365)))
+        # probability to observe at least a conflict
         p = probability(n = 366, m = m, iterations = ITERATIONS, probabilities=probabilities, distribution="real")
         tmp_real.append(p)
     exp4_time_end = time()
@@ -86,7 +94,9 @@ def main():
     m_lists = list()
     theor_avg_list = list()
     exp5_time_start = time()
+    
     for n in N:
+        # repeat the first experiment for different values of n keeping the distribution fixed to uniform
         first_collisions_unif_var = list()
         for _ in range(ITERATIONS):
             first_collisions_unif_var.append(expected_value(n = n, distribution="uniform"))
@@ -100,40 +110,29 @@ def main():
     all_p = list()
     all_theor = list()
     for n in N:
+        # repeat the second experiment for different values of n keeping the distribution fixed to uniform
         tmp_unif_var = list()
         theor_vals_var = list()
         for m in M:
             theor_vals_var.append(1-exp(-(m**2)/(2*n)))
             p = probability(n = n, m = m, iterations = ITERATIONS, distribution="uniform")
             tmp_unif_var.append(p)
+        # a list containing 7 lists (one for each n) of 11 probabilities (one for each m)
         all_p.append(tmp_unif_var)
         all_theor.append(theor_vals_var)
     exp5_time_end = time()
     print(f"Simulation time for the general case of the birthday paradox: {exp5_time_end - exp5_time_start}")
     print()
     print(f"Time of the whole simulation: {exp5_time_end + exp4_time_end + exp3_time_end + exp2_time_end + exp1_time_end - exp5_time_start - exp4_time_start - exp3_time_start- exp2_time_start - exp1_time_start}")
-    fig, ax = plt.subplots(1, 1, figsize = (13,7))
-    fig.suptitle("Probability to have at least one conflict")
+    fig, ax = plt.subplots(1, 1)
+    fig.suptitle("Probability to have at least one conflict for different values of n")
     plot_prob_var(ax, all_p, M, all_theor, ITERATIONS, N)
     fig.savefig("graphs/Probability extension")
     fig.show()
 
 if __name__ == '__main__':
-
     main()
 
-# ASSUMPTIONS
-    
-# - we neglect gap years (i.e. n=365)
-# - the distrbution of birthdays is taken as to be unifom at first and then from real statistics
-# - we use the Taylor-based linear approximation e^(-ax)=1-ax, accurate for small values of x
-# - to compute the avarage number of people to have a conflict, we run K1 times a simulation that "generates" birthdays until I have a
-#   conflict, then take the avarages of this simulations
-# - to compute the probability of having a conflict over m birthdays, we extract m<=n elements with repetition from the birthday distribution
-#   and check whether a conflict was found; for each m we repeat the simulation K2 times and define the empirical probability of having a
-#   conflict over m people to be the avarage of the K2 results
-# - we compare all of our empirical results with the theoretical ones
-# - consider also anni bisestili
 
 
 

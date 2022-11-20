@@ -11,8 +11,8 @@ Given a class of m students, we want to evaluate:
     where another csv file will be stored whose content is the list of birthdays probabilities
 
 # INSTRUCTION TO RUN
-To run the file you have to install the numpy and matplotlib packages and then run the script lab07.py 
-keeping it in the same folder of the folder "births distribution" and of simulation.py
+To run the file you have to install the numpy, pandas, scipy and matplotlib packages in the environment where you want to run the simulation
+and then run the script lab07.py keeping it in the same folder of the folder "births distribution" and of simulation.py
 
 # EXTENSION
 Generalized case of the birthday paradox. 

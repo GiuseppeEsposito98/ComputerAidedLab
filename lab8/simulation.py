@@ -4,13 +4,13 @@ import pandas as pd
 import scipy.stats as st
 from math import sqrt
 import matplotlib.pyplot as plt
-N = 366
 
 
 
 
 
 def confidence_interval_avg(vector: list, alpha = 0.05):
+    '''confidence interval for the averages. The averages are distributed as t-student'''
     conf_int = st.t.interval(alpha=alpha, df=len(vector)-1, loc=sum(vector)/len(vector), scale=np.var(vector))
     return conf_int
 
@@ -146,8 +146,8 @@ def plot_prob_var(ax,
     ax.set_xlabel("M (number of elements)")
     ax.set_ylabel("Probabilities")
     ax.set_xticks(np.arange(min(M), max(M)+1, 10.0))
-    ax.set_title(f'Number of possible extractions VS Conflict probabilities')
-    ax.legend()
+    ax.set_title(f'Number of elements VS Conflict probabilities')
+    ax.legend(fontsize = 'xx-small')
     ax.grid()
 
 def from_data_to_probs(filename):
@@ -189,17 +189,5 @@ def from_data_to_probs(filename):
     with open("births_distribution/probabilities.csv", "a") as csf:
         for k,v in zip(probabilities.index, probabilities):
             csf.write(f"{k[0]}/{k[1]},{v}\n")
-
-
-# - we neglect gap years (i.e. n=365)
-# - the distrbution of birthdays is taken as to be unifom at first and then from real statistics
-# - we use the Taylor-based linear approximation e^(-ax)=1-ax, accurate for small values of x
-# - to compute the avarage number of people to have a conflict, we run K1 times a simulation that "generates" birthdays until I have a
-#   conflict, then take the avarages of this simulations
-# - to compute the probability of having a conflict over m birthdays, we extract m<=n elements with repetition from the birthday distribution
-#   and check whether a conflict was found; for each m we repeat the simulation K2 times and define the empirical probability of having a
-#   conflict over m people to be the avarage of the K2 results
-
-# - try to use approximations different from the Taylor-based one
 
 
