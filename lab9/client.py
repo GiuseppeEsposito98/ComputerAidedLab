@@ -10,14 +10,9 @@ class Client:
         self.id_client = id_client
         self.delay_time = 0
 
-    def __lt__(self, other):
-        return self.arrival_time < other.arrival_time
 
     def __str__(self) -> str:
         return f"id: {self.id_client}"
 
     def set_(self, status: str):
         self.typ = status
-    
-    def update_delay(self, increment):
-        self.delay_time = self.delay_time + increment

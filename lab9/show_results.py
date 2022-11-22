@@ -2,39 +2,37 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-# before removing transient
-plt.plot(avg_lenghts_per_event)
-plt.title('Event VS Avg_Delay', fontsize=14)
-plt.xlabel('Event')
-plt.ylabel('DELAYS')
-plt.grid(True)
-plt.show()
+def plot_metric(fig,
+                ax,
+                list_per_event: list,
+                label: str,
+                marker: str = None,
+                log_scale: bool = False,
+                ci: bool = False):
+    ax.plot(list_per_event, label = label, marker = marker)
+    ax.set_xlabel('Event')
+    ax.set_ylabel('Delays')
+    ax.grid(True)
+    if log_scale:
+        ax.xscale("log")
+        ax.yscale("log")
+    ax.legend()
 
-plt.plot(avgs_per_window, marker = "o")
-plt.title('Event VS Avg', fontsize=14)
-plt.xlabel('Event')
-plt.ylabel('Avg')
-plt.grid(True)
-plt.show()
 
-plt.plot(delays)
-plt.title('Event VS Delay', fontsize=14)
-plt.xlabel('Event')
-plt.ylabel('Delay_per_client_which_is_in_departure')
-plt.grid(True)
-plt.show()
-
-plt.plot(len_queue)
-plt.title('Event VS length_of_the_queue', fontsize=14)
-plt.xlabel('Event')
-plt.ylabel('length of the queue')
-plt.grid(True)
-plt.show()
-
-# after removing the transient
-plt.plot(avg_lenghts_per_event)
-plt.title('Event VS Avg_Delay', fontsize=14)
-plt.xlabel('Event')
-plt.ylabel('DELAYS')
-plt.grid(True)
-plt.show()
+def plot_metric_with_ci(ax,
+                list_per_event: list,
+                label: str,
+                ci_lower: list,
+                ci_upper: list,
+                marker: str = None,
+                log_scale: bool = False
+                ):
+    ax.plot(list_per_event, label = label, marker = marker)
+    ax.set_xlabel('Event')
+    ax.set_ylabel('Delays')
+    ax.grid(True)
+    ax.fill_between(list_per_event, ci_lower, ci_upper, alpha = .5)
+    if log_scale:
+        ax.xscale("log")
+        ax.yscale("log")
+    ax.legend()

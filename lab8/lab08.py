@@ -1,7 +1,7 @@
 import random
 from math import exp
 import numpy as np
-from simulation import *
+from lab9.simulation import *
 from time import time
 random.seed(423)
 np.random.seed(423) 
