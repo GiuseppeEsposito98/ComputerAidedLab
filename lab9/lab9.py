@@ -256,7 +256,7 @@ def plot_metric(fig,
 
 def plot_metric_with_ci(ax,
                 list_per_event: list,
-                label: str,
+                label_: str,
                 ci_lower: list,
                 ci_upper: list,
                 x_label = 'Event',
@@ -267,12 +267,12 @@ def plot_metric_with_ci(ax,
         This function plot a generic array of delays with standard functions of matplotlib.pyplot
         when a confidence interval is requested
     '''
-    ax.plot(list_per_event, label = label, marker = marker)
+    ax.plot(list_per_event, label = label_, marker = marker)
     ax.set_xlabel(x_label)
     ax.set_ylabel('Delays (time unit)')
     ax.grid(True)
     # plot confidence interval
-    ax.fill_between([x for x in range(len(list_per_event))], ci_lower, ci_upper, alpha = .5)
+    ax.fill_between([x for x in range(len(list_per_event))], ci_lower, ci_upper, alpha = .5, label = f'{label_} confidence interval 95%')
     if log_scale:
         ax.xscale("log")
         ax.yscale("log")
@@ -367,9 +367,9 @@ def main():
             means, ci_lower_bounds, ci_upper_bounds = batch_means(without_transient, correct_num_batches = correct_num_batches)
             # plot the average delays per departure event as result of batch means algorithm 
             fig3, ax3 = plt.subplots(1,1)
-            plot_metric_with_ci(ax3, means, 'delays', ci_lower_bounds, ci_upper_bounds, x_label='#departure_events')
-            ax3.set_title(f'#departure_event VS cumulative_average_delay,\nUtilization_level: {u}, distribution: {distribution}')
-            fig3.savefig(f'graphs/{distribution}/with u: {u}, (batch mean) #departure_event VS cumulative_average_delay.png')
+            plot_metric_with_ci(ax3, means, 'delays', ci_lower_bounds, ci_upper_bounds, x_label='batch id')
+            ax3.set_title(f'batch id VS cumulative_average_delay,\nUtilization_level: {u}, distribution: {distribution}')
+            fig3.savefig(f'graphs/{distribution}/with u: {u}, (batch mean) batch id VS cumulative_average_delay.png')
             plt.close()
 
             if distribution == 'hyperexponential':
@@ -391,9 +391,9 @@ def main():
 
     fig4, ax4 = plt.subplots(1,1)
     fig4.suptitle(f'Utilization_level VS delays')
-    plot_metric_with_ci(ax4, mean_exp, label= 'exponential', ci_lower=lower_bounds_exp, ci_upper=upper_bounds_exp, x_label = 'Utilization (work / time_unit)')
-    plot_metric_with_ci(ax4, mean_hyperexp, label= 'hyperexponential', ci_lower=lower_bounds_hyperexp, ci_upper=upper_bounds_hyperexp, x_label = 'Utilization Utilization (work / time_unit)')
-    plot_metric_with_ci(ax4, mean_det, label= 'deterministic', ci_lower=lower_bounds_det, ci_upper=upper_bounds_det, x_label = 'Utilization Utilization (work / time_unit)')
+    plot_metric_with_ci(ax4, mean_exp, label_= 'exponential', ci_lower=lower_bounds_exp, ci_upper=upper_bounds_exp, x_label = 'Utilization (work / time_unit)')
+    plot_metric_with_ci(ax4, mean_hyperexp, label_= 'hyperexponential', ci_lower=lower_bounds_hyperexp, ci_upper=upper_bounds_hyperexp, x_label = 'Utilization Utilization (work / time_unit)')
+    plot_metric_with_ci(ax4, mean_det, label_= 'deterministic', ci_lower=lower_bounds_det, ci_upper=upper_bounds_det, x_label = 'Utilization Utilization (work / time_unit)')
     plt.close()
     
     print('End of the simulation')
