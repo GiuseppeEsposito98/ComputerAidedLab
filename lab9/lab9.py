@@ -287,6 +287,7 @@ def main():
     # INPUT PARAMETERS
     # utilization is the average amount of work requested to the server from customers arriving in the time unit
     utilizations = [0.1, 0.2, 0.4, 0.7, 0.8, 0.9, 0.95, 0.99]
+
     confidence = 0.95
     SIM_TIME = 100000
     print('Starting simulation')

@@ -1,116 +1,158 @@
 
 import numpy as np
 import random
-import itertools
 from useful_classes import *
 from sympy import symbols, Eq, solve
 
-# possible parameters of distributions
-# arrival
-# for both high and low_priority
 
+def arrival(lambda_hp, lambda_lp, distribution, case, queue, N, FES, server, time, id_client, users):
+    # Random generate the priority of the next generated client.
+        priority_type = random.choice(["low", "high"])
+        # Random generate the inter-arrival time
+        if priority_type == 'high':
+            t_ia = random.expovariate(lambda_hp)
+        elif priority_type == 'low':
+            t_ia = random.expovariate(lambda_lp)
+        # and the service_time
+        service_time = generate_service_time(case, priority_type, lambda_hp, lambda_lp, distribution)
 
-#service
-# case a
-# for both high and low priority
-one_over_mu_a = 1
+        # Schedule the arrival of the next client if there is any room in the queue
+        if len(queue) <= N:
+            e10 = Event(time + t_ia, 'arrival')
+            users = users + 1
+            client = Client('arrival', time, id_client, priority_type, remaining_time=service_time)
+            e10.assignClient(client)
+            FES.append(e10)
+            queue.append(client)
+        # Schedule the departure of the actual client when one of the sever has finishes his last job
+        if users == 1:
+            server.set_client(client)
+            client.set_server(server)
+            server.status = 'busy'
+            e = Event(time+service_time, "departure")
+            e.assignClient(client)
+            FES.append(e)
+        return users, id_client
 
-# case b
-# 0.5 for low_priority, 1.5 for high_priority
-one_over_mu_P = (0.5, 1.5)
+def high_arrival(server_dict, users, time, FES, queue, distribution, case, lambda_hp, lambda_lp, N, id_client):
+        """
+            In the arrival function when a client just generated has a priority that is high there can be some conflict
+            if there are some servers that are processing a client that has low priority. Then we suppose that client_arr
+            has already been checked to be high_priority and here we check all the other things.
+        """
+        # Select at random the server to idle in order to serve the HP client
+        srv_hp = random.choice(list(server_dict.values()))
+        priority_type = random.choice(["low", "high"])
+        if priority_type == 'high':
+                t_ia = random.expovariate(lambda_hp)
+        elif priority_type == 'low':
+                t_ia = random.expovariate(lambda_lp)
+        service_time = generate_service_time(case, priority_type, lambda_hp, lambda_lp, distribution)
+        if len(queue) <= N:
+            e = Event(time + t_ia, 'arrival')
+            FES.append(e)
+            users = users + 1
+            client = Client('arrival', time, id_client, priority_type, remaining_time=service_time)
+            e.assignClient(client)
+            queue.append(client)
 
-
-def arrival(time, FES, queue_, server_dict, users, id_client, distribution= 'exponential'):
-    '''
-    This function computes a random instance of time,
-    add an even to the FES (Future Event Set),
-    add a client to the queue whose label is 'arrival' and whose id is a constantly increasing counter
-    '''
-    if distribution == 'hyperexponential':
-        lam = generate_hyperexponential()
-    elif distribution == 'deterministic_process':
-        lam = 1
-    elif distribution == 'exponential':
-        lam=1
-
-    # inter arrival time
-    t_ia = np.random.exponential(lam)
-    e = Event(time +t_ia, "arrival")
-    # id_client is used to check whether a specific client has just one arrival and one departure (debugging purposes)
-    id_client = id_client + 1 
-    client_arr = Client("arrival", time, id_client)
-    # i'm taking track of the corresponding client in the event object
-    e.assignClient(client_arr)
-    FES.append(e)
-    # increase the counter of users in the system
-    #users = users +1
-    # if all the servers are busy
-    if all(server.status == 'busy' for server in server_dict.values()):    
-        queue_.client_list.append(client_arr)
-    # otherwise if there is at least one that is idle
-    else:
-        for server in server_dict.values():
-            if server.status == 'idle':
-                # the distribution can be either ['hyperexponential', 'exponential']
-                if distribution == 'hyperexponential':
-                    service_time = generate_hyperexponential()
-                elif distribution == 'deterministic_process':
-                    service_time = 1
-                elif distribution == 'exponential':
-                    service_time = np.random.exponential(1)
-                server.set_client(client_arr)
-                server.set_status('busy')
-                client_dep = Client(status = "departure", arrival_time= t_ia, id_client = id_client)
-                e1 = Event(time + service_time, "departure")
-                e1.assignClient(client_dep)
-                FES.append(e1)
-                break      
-    return id_client
-
+        # The client which has been stopped is put another time in the queue if there is an avilable room
+        client_via = srv_hp.client
+        client_via.server = None
+        client_via.time = time
+        if users == 1:
+            srv_hp.client = client_via
+            client_via.server = srv_hp
+            srv_hp.status = 'busy'
+            e3 = Event(time+ service_time, 'departure')
+            e3.assignClient(client_via)
+            FES.append(e3)
+        if len(queue)<= N:
+            e4 = Event(time + client.arrival_time, 'arrival')
+            FES.insert(0,e4)
+        return users, id_client
 
 # Departure function
-def departure(time, FES, queue_, server_dict, users, delays, distribution= 'exponential'):
-    # is the queue counter is greater than 0 make the server busy
-    if len(queue_.client_list) > 0:
-        # remove the first client added in the queue (FIFO policy)
-        client_dep = queue_.client_list.pop(0)
-        # delays are time the client just popped from the queue has spent in the queue
-        delays.append(time-client_dep.arrival_time)
-        # the distribution can be either ['hyperexponential', 'uniform']
-        if distribution == 'hyperexponential':
-            service_time = generate_hyperexponential()
-        elif distribution == 'deterministic_process':
-            service_time = 1
-        elif distribution == 'exponential':
-            service_time = np.random.exponential(1)
-        e2 = Event(time + service_time, "departure")
-        # set the label of the client just popped to 'departure'
-        client_dep.set_status("departure")
-        e2.assignClient(client_dep)
-        FES.append(e2)
-    else:
-        server_dict['server0'].set_status('idle')
-        server_dict['server1'].set_status('idle')
-    return delays
+def departure(users,time, FES, queue, distribution, case, lambda_hp, lambda_lp, delays_low, delays_high, delays):
+        """
+            When a client has finished to be served an instance of the event departure is created and the server 
+            that was working on that is made idle. 
+        """
+        # If the selected distribution for the service time is exponential
+        # Remove the served client from the queue
+        client = queue.pop(0)
+        service_time = generate_service_time(case, client.priority, lambda_hp, lambda_lp, distribution )
+        server = client.server
+        if server != None:
+            server.status = 'idle'
+        users = users - 1
+        if users > 0:
+            e24 = Event(time+service_time, "departure")
+            e24.assignClient(client)
+            FES.append(e24)
+            if client.priority == 'high':
+                delays_high.append(time-client.arrival_time)
+            if client.priority == 'low':
+                delays_low.append(time-client.arrival_time)
+            delays.append(time-client.arrival_time)
+        # Return the number of users that are now in the queue and the time the client just served has enetered the queue
+        return users
 
 
 
-def generate_hyperexponential(params):
-    '''
-    Generate numbers from an hyperexponential distribution
-    '''
-    # this value is to garantee the same probability to choose the l1 or l2
-    x, y = symbols('x y')
-    eq1 = Eq(0.5*x + 0.5*y - params[0])
-    eq2 = Eq(x**2 - y**2 - (params[1]*10)**2)
-    freq1, freq2 = solve([eq1,eq2])[0]
-    u = np.random.uniform(0,1)
-    if u <= 0.5:
-        service = np.random.exponential(1/freq1)
-    else:
-        service = np.random.exponential(1/freq2)
+def generate_hyperexponential(case, priority):
+        """
+           Generate numbers from an hyperexponential distribution with respect to the priority of the client
+           and also to different setup of the hyperexponential distribution in terms of mean and of standard
+           deviation of the possible exponential distributions
+        """
+        p = 0.5
 
-    return service
+        if case == "a": 
+            lam1 = 1/6 
+            lam2 = 1/8 
+            u = random.uniform(0,1)
+            if u <= p:
+                service_time = random.expovariate(1/lam1)
+            else:
+                service_time = random.expovariate(1/lam2)
+            
+        # by definition of mean and standard deviation a systems of 2 equation is defined that can be solved
+        # with sympy library.
+        if case == "b":
+            if priority == "high":
+                mean = 1/2
+                stdv = 5
+                lam1, lam2 = symbols('lambda1 lambda2')
+                eq1 = Eq(p/lam1 + (1-p)/lam2, mean)
+                eq2 = Eq(2*p/(lam1**2) + 2*(1-p)/(lam2**2)-mean, stdv**2)
+                sols = solve((eq1,eq2), (lam1, lam2), dict = True)
+                l1 = sols[0]['lambda1']
+                l2 = sols[0]['lambda2']
+                u = random.uniform(0,1)
+                if u <= p:
+                    service_time = random.expovariate(1/l1)
+                else:
+                    service_time = random.expovariate(1/l2)
+
+            if priority == "low":
+                mean = 3/2
+                stdv = 15
+                # by definition of mean and standard deviation a systems of 2 equation is defined that can be solved
+                # with sympy library.
+                lam1, lam2 = symbols('lambda1 lambda2')
+                eq1 = Eq(p/lam1 + (1-p)/lam2, mean)
+                eq2 = Eq(2*p/(lam1**2) + 2*(1-p)/(lam2**2)-mean, stdv**2)
+                sols = solve((eq1,eq2), (lam1, lam2), dict = True)
+                l1 = sols[0]['lambda1']
+                l2 = sols[0]['lambda2']
+                u = random.uniform(0,1)
+                if u <= p:
+                    service_time = random.expovariate(1/l1)
+                else:
+                    service_time = random.expovariate(1/l2)
+
+        return service_time
 
 def cum_mean(arr):
     '''
@@ -179,45 +221,29 @@ def plot_metric(fig,
 
 
 
-"""def arrival(time, FES, queue_dict, id_client, params = None, freq_arr = None, distribution= 'exponential'):
-    '''
-    This function computes a random instance of time,
-    add an even to the FES (Future Event Set),
-    add a client to the queue whose label is 'arrival' and whose id is a constantly increasing counter
-    '''
-
-    if distribution == 'hyperexponential':
-        lam = generate_hyperexponential(params)
-    elif distribution == 'deterministic_process':
-        lam = 1
-    elif distribution == 'exponential':
-        lam = 1/freq_arr
-
-    # inter arrival time
-    t_ia = np.random.exponential(lam)
-    e = Event(time +t_ia, "arrival")
-    # id_client is used to check whether a specific client has just one arrival and one departure (debugging purposes)
-    id_client = id_client + 1 
-    priority_type = random.choice(['low', 'high'])
-    client_arr = Client("arrival", time, id_client, priority_type)
-    queue_dict[priority_type].add_client(client_arr)
-    # i'm taking track of the corresponding client in the event object
-    e.assignClient(client_arr)
-    FES.append(e)
-    # is there is exactly one user in the queue make the server busy
-    if any(server.status == 'idle' for server in server_dict.values()):
-        # the distribution can be either ['hyperexponential', 'uniform']
-        if distribution == 'hyperexponential':
-            service_time = generate_hyperexponential(params)
-        elif distribution == 'deterministic_process':
-            service_time = 1
-        elif distribution == 'exponential':
-            service_time = np.random.exponential(1)
-        client_dep = Client("departure", time+ service_time, id_client)
-        e1 = Event(time + service_time, "departure")
-        e1.assignClient(client_dep)
-        FES.append(e1)
-    elif all(server.status == 'busy' for server in server_dict.values()) and client_arr.typ == 'high' and any(server.client.typ == 'low' for server in server_dict.values()):
-        for server in server_dict.values():
-            if server.client.typ == 'low':
-                pass"""
+def generate_service_time(case, priority, lambda_hp, lambda_lp, distribution = 'exponential'):
+        """
+            In all different cases given by the priority-type of the client and of the distribution from which 
+            it has to be generated, a service time is generated
+        """
+        if distribution == "exponential":
+            if case == "a": 
+                scale = 1
+            if case == "b":
+                if priority == "high":
+                    scale = 1/2
+                if priority == "low":
+                    scale = 3/2
+            service_time = random.expovariate(scale)
+        elif distribution == "deterministic_process":
+            if case == "a":
+                service_time = 1
+            if case == "b":
+                if priority == "high":
+                    service_time = lambda_hp
+                if priority == "low":
+                    service_time = lambda_lp
+        if distribution == "hyperexponential":
+            service_time = generate_hyperexponential(case, priority)
+        
+        return service_time
