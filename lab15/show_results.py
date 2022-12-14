@@ -6,16 +6,18 @@ def plot_metric(fig,
                 label: str,
                 marker: str = None,
                 log_scale: bool = False,
-                x_label = 'Event'
+                x_label = 'Event',
+                y_label = 'probability',
+                x_values = None
                 ):
     
     '''
     This function plot a generic array of delays with standard functions of matplotlib.pyplot when a confidence interval 
     is not requested
     '''
-    ax.plot(list_per_event, label = label, marker = marker)
+    ax.plot(x_values, list_per_event, label = label, marker = marker)
     ax.set_xlabel(x_label)
-    ax.set_ylabel('Delays (time unit)')
+    ax.set_ylabel(y_label)
     ax.grid(True)
     if log_scale:
         ax.xscale("log")
