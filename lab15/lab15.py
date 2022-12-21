@@ -41,7 +41,7 @@ for i in range(0,len(words)):
     if i < 4 or i > len(words) - 4:
         pass
     sentence = []
-    for j in range(7,0,-1):
+    for j in range(3,0,-1):
         sentence.append(words[i-j])
     sentences_4.append(sentence)
 

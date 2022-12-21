@@ -2,6 +2,7 @@ from utils import *
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
+from collections import OrderedDict
 
 def plot_metric(fig,
                 ax,
@@ -99,14 +100,18 @@ if __name__ == '__main__':
         )
         for _ in range(RUNS):
             # instanciate the simulator
-            simulator = GWProcess(50, l, get_seed())
+            simulator = GWProcess(30, l, get_seed())
             # Execute the simulation
             last_generation, children_per_generation = simulator.execute()
-            if last_generation >= 0:
+            
+            # if the tree is not infinite
+            if last_generation > 0:
+                # increase a counter w.r.t. the last detected generation which is the one before the extinction
                 if last_generation not in last_generations.keys():
                     last_generations[last_generation] = 1
                 else:
                     last_generations[last_generation] += 1
+                # count the number of individuals per generation
                 for i in range(len(children_per_generation)):
                     if i not in children.keys():
                         children[i] = children_per_generation[i]
@@ -114,15 +119,20 @@ if __name__ == '__main__':
                         children[i] += children_per_generation[i]
             else:
                 infinite_counter += 1
-        #print(children)
+        # sort the dictionary
+        last_generations = OrderedDict(sorted(last_generations.items()))
         print(f'probability of infinite trees for lambda = {l}: ',infinite_counter/RUNS)
+        # remove the last generation which is the one with 0 individuals
+        last_generations.popitem()
         generations = last_generations.keys()
+        # compute the MGF for all the generations from 0 to the highest one
         max_generation = max(generations)
         theoretical_extinsion_probs.append(np.exp(-l))
         for i in range(max_generation):
             prev_prob = theoretical_extinsion_probs[-1]
-            theoretical_extinsion_probs.append(np.exp(l*(prev_prob-1)))
+            theoretical_extinsion_probs.append(np.exp(-l*(prev_prob-1)))
         for val in last_generations.values():
+            # compute the probability as the number of extinctions devided by the number of trials
             prob = val/RUNS
             extinction_probabilities.append(prob)
         probs = np.cumsum(extinction_probabilities)
@@ -131,10 +141,13 @@ if __name__ == '__main__':
             confidence_intervals_lower.append(ci[0])
             confidence_intervals_upper.append(ci[1])
         for val in children.values():
+            # take the average number of individuals per generation w.r.t. the number of trials
             normalized_values.append(val/RUNS)
         if l == 0.8:
             fig, ax = plt.subplots()
-            ax.bar([i for i in range(len(children.keys()))],children.values())
+            ax.bar([i for i in range(len(normalized_values))],normalized_values)
+            ax.set_xlabel('generation')
+            ax.set_ylabel('number of individuals')
             plt.savefig(f'graphs/histogram with lambda = 0.8.png')
         fig, ax = plt.subplots()
         ax.plot(theoretical_extinsion_probs, label = 'theoretical extinction probability')
