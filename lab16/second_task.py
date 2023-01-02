@@ -86,7 +86,7 @@ class HawkessProcess:
         self.generate_uncontrolled()
         t_curr = self.pause_generation
         for day in range(t_curr, self.MAX_SIM_TIME):
-
+            
         return inf_times
 
 

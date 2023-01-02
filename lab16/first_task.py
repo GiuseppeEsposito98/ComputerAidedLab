@@ -11,7 +11,6 @@ class Node:
         self.infection_time_parameter = infection_time_parameter
         self.infection_time_distribution = infection_time_distribution
         self.upper_bound_uniform = upper_bound_uniform
-        self.generate_infection_time = lambda: np.random.exponential(1/infection_time_parameter) if infection_time_distribution == 'exponential' else lambda: np.random.uniform(low=0, high=upper_bound_uniform)
         self.poisson_parameter = poisson_parameter
         self.generate_num_of_children = lambda: np.random.poisson(poisson_parameter)
         self.MAX_SIM_TIME = MAX_SIM_TIME
@@ -22,8 +21,11 @@ class Node:
         if not self.has_generated:
             num_children = self.generate_num_of_children()
             self.has_generated = True
-            for _ in range(num_children): 
-                tau = np.random.uniform(0,20) ######## devi cambiare
+            for _ in range(num_children):
+                if self.infection_time_distribution == 'exponential':
+                    tau = np.random.exponential(1/self.infection_time_parameter) ######## devi cambiare
+                elif self.infection_time_distribution == 'uniform':
+                    tau = np.random.uniform(low=0, high=self.upper_bound_uniform)
                 time_assolute = self.time_born + tau  
                 if time_assolute > self.MAX_SIM_TIME:  
                     return          
@@ -39,6 +41,8 @@ class Node:
         for child in self.children: 
             inf_times = child.group_infection_times(inf_times)
         return inf_times
+
+
 
 class HawkessProcess:
     def __init__(self, seed, MAX_SIM_TIME = 100, initial_time = 0, ancestor_generation_parameter = 20, poisson_parameter = 2, ancestor_time_bound = 10, infection_time_parameter =1/10, infection_time_distribution = 'uniform', upper_bound_uniform = 20) -> None:

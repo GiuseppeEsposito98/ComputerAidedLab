@@ -8,13 +8,16 @@ def compute_fingerprint(n, word):
         h = word_hash_int % n # map into [0,n-1]
         return h
 
-def plot_metric(ax, x_metric, y_metric, output_path, x_label, y_label, x_log_scale_flag = False, y_log_scale_flag= False, save_flag = True):
-        ax.plot(x_metric, y_metric)
+def plot_metric(ax, x_metric, y_metric, output_path, x_label, y_label, label, marker='o', x_log_scale_flag = False, y_log_scale_flag= False, save_flag = True):
+        ax.plot(x_metric, y_metric, label = label, marker = marker)
         ax.set_xlabel(x_label)
         ax.set_ylabel(y_label)
+        ax.grid()
+        ax.legend()
         if save_flag:
             plt.savefig(output_path)
         if x_log_scale_flag:
             ax.set_xscale('log')
         if y_log_scale_flag:
             ax.set_yscale('log')
+        ax.grid()
